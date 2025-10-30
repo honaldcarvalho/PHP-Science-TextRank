@@ -1,190 +1,113 @@
 <?php
-/**
- * PHP Science TextRank (http://php.science/)
- *
- * @see     https://github.com/DavidBelicza/PHP-Science-TextRank
- * @license https://opensource.org/licenses/MIT the MIT License
- * @author  David Belicza <david@belicza.com>
- */
-
-declare(strict_types=1);
-
 namespace CroacWorks\TextRank\Tool;
 
-/**
- * Class Score
- *
- * It handles words and assigns weighted numbers to them.
- *
- * @package CroacWorks\TextRank\Tool
- */
 class Score
 {
     /**
-     * The maximum connections by a word in the current text.
-     *
-     * @var int
+     * TextRank word scoring with semantic boosts and adaptive cache.
      */
-    protected $maximumValue = 0;
-
-    /**
-     * The minimum connection by a word in the current text.
-     *
-     * @var int
-     */
-    protected $minimumValue = 0;
-
-    /**
-     * Calculate Scores.
-     *
-     * It calculates the scores from word's connections and the connections'
-     * scores. It retrieves the scores in a form of a matrix where the key is
-     * the word and value is the score. The score is between 0 and 1.
-     *
-     * @param Graph $graph The graph of the text.
-     * @param Text  $text  Text object what stores all text data.
-     *
-     * @return array Key is the word and value is the float or int type score
-     *               between 1 and 0.
-     */
-    public function calculate(Graph $graph, Text &$text): array
+    public function calculate(Graph $graph, array $text): array
     {
-        $graphData = $graph->getGraph();
-        $wordMatrix = $text->getWordMatrix();
-        $wordConnections = $this->calculateConnectionNumbers($graphData);
-        $scores = $this->calculateScores(
-            $graphData,
-            $wordMatrix,
-            $wordConnections
-        );
-
-        return $this->normalizeAndSortScores($scores);
-    }
-
-    /**
-     * Connection Numbers.
-     *
-     * It calculates the number of connections for each word and retrieves it
-     * in array where key is the word and value is the number of connections.
-     *
-     * @param array $graphData Graph data from a Graph type object.
-     *
-     * @return array Key is the word and value is the number of the connected
-     *               words.
-     */
-    protected function calculateConnectionNumbers(array &$graphData): array
-    {
-        $wordConnections = [];
-
-        foreach ($graphData as $wordKey => $sentences) {
-            $connectionCount = 0;
-
-            foreach ($sentences as $sentenceIdx => $wordInstances) {
-                foreach ($wordInstances as $connections) {
-                    $connectionCount += count($connections);
-                }
-            }
-
-            $wordConnections[$wordKey] = $connectionCount;
-        }
-
-        return $wordConnections;
-    }
-
-    /**
-     * Calculate Scores.
-     *
-     * It calculates the score of the words and retrieves it in array where key
-     * is the word and value is the score. The score depends on the number of
-     * the connections and the closest word's connection numbers.
-     *
-     * @param array $graphData       Graph data from a Graph type object.
-     * @param array $wordMatrix      Multidimensional array from integer keys
-     *                               and string values.
-     * @param array $wordConnections Key is the word and value is the number of
-     *                               the connected words.
-     *
-     * @return array Scores where key is the word and value is the score.
-     */
-    protected function calculateScores(
-        array &$graphData,
-        array &$wordMatrix,
-        array &$wordConnections
-    ): array {
         $scores = [];
+        $vertices = $graph->getVertices();
 
-        foreach ($graphData as $wordKey => $sentences) {
-            $value = 0;
+        // Caminho do cache adaptativo
+        $cacheFile = \Yii::getAlias('@runtime/keywords_boost.json');
+        $cache = [];
 
-            foreach ($sentences as $sentenceIdx => $wordInstances) {
-                foreach ($wordInstances as $connections) {
-                    foreach ($connections as $wordIdx) {
-                        $word = $wordMatrix[$sentenceIdx][$wordIdx];
-                        $value += $wordConnections[$word];
-                    }
+        if (file_exists($cacheFile)) {
+            $json = file_get_contents($cacheFile);
+            $cache = json_decode($json, true) ?: [];
+        }
+
+        // Combina o texto em minúsculas (para análise semântica)
+        $joined = mb_strtolower(implode(' ', $text), 'UTF-8');
+
+        foreach ($vertices as $word) {
+            $w = trim($word);
+            if ($w === '') continue;
+
+            // Peso base
+            $weight = 1.0;
+
+            // 🔹 Nome próprio (inicial maiúscula dentro do texto)
+            if (preg_match('/\b[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+/', $word)) {
+                $weight *= 2.0;
+            }
+
+            // 🔹 Sigla (tudo em maiúsculas)
+            elseif (mb_strtoupper($word, 'UTF-8') === $word && mb_strlen($word, 'UTF-8') > 1) {
+                $weight *= 1.8;
+            }
+
+            // 🔹 Termos técnicos ou de tecnologia
+            elseif (preg_match('/\b(linux|fedora|ubuntu|windows|microsoft|apple|google|intel|amd|gnome|kde|php|yii|javascript|node|docker|api)\b/i', $word)) {
+                $weight *= 1.6;
+            }
+
+            // 🔹 Palavras longas (provável substantivo)
+            elseif (mb_strlen($word, 'UTF-8') > 8) {
+                $weight *= 1.3;
+            }
+
+            // 🔹 Frequência histórica (cache adaptativo)
+            $lower = mb_strtolower($word, 'UTF-8');
+            if (isset($cache[$lower])) {
+                $weight *= min(3.0, 1.0 + log(1 + $cache[$lower]) / 2); // aumenta de forma logarítmica
+            }
+
+            $scores[$word] = $weight;
+        }
+
+        // 🔸 Cálculo base do TextRank (PageRank-like)
+        $ranks = [];
+        $d = 0.85; // fator de amortecimento
+        $min_diff = 0.0001;
+        $steps = 100;
+
+        // Inicializa pontuações
+        foreach ($vertices as $v) {
+            $ranks[$v] = $scores[$v] ?? 1.0;
+        }
+
+        for ($i = 0; $i < $steps; $i++) {
+            $prev_ranks = $ranks;
+            $diff = 0.0;
+
+            foreach ($vertices as $v) {
+                $neighbors = $graph->getEdges($v);
+                $rank_sum = 0.0;
+                foreach ($neighbors as $n) {
+                    $n_neighbors = $graph->getEdges($n);
+                    $rank_sum += ($ranks[$n] ?? 0) / (count($n_neighbors) ?: 1);
                 }
+                $ranks[$v] = (1 - $d) + $d * $rank_sum * ($scores[$v] ?? 1.0);
+                $diff += abs($ranks[$v] - ($prev_ranks[$v] ?? 0));
             }
 
-            $scores[$wordKey] = $value;
+            if ($diff < $min_diff) break;
+        }
 
-            if ($value > $this->maximumValue) {
-                $this->maximumValue = $value;
-            }
-
-            if ($value < $this->minimumValue || $this->minimumValue == 0) {
-                $this->minimumValue = $value;
+        // 🔸 Normaliza pesos finais (0–1)
+        $maxRank = max($ranks);
+        if ($maxRank > 0) {
+            foreach ($ranks as $k => $v) {
+                $ranks[$k] = $v / $maxRank;
             }
         }
 
-        return $scores;
-    }
-
-    /**
-     * Normalize and Sort Scores.
-     *
-     * It recalculates the scores by normalize the score numbers to between 0
-     * and 1.
-     *
-     * @param array $scores Keywords with scores. Score is the key.
-     *
-     * @return array Keywords with normalized and ordered scores.
-     */
-    protected function normalizeAndSortScores(array &$scores): array
-    {
-        foreach ($scores as $key => $value) {
-            $v = $this->normalize(
-                $value,
-                $this->minimumValue,
-                $this->maximumValue
-            );
-
-            $scores[$key] = $v;
+        // 🔸 Atualiza o cache adaptativo
+        foreach ($ranks as $word => $val) {
+            $lower = mb_strtolower($word, 'UTF-8');
+            $cache[$lower] = ($cache[$lower] ?? 0) + 1;
         }
 
-        arsort($scores);
-
-        return $scores;
-    }
-
-    /**
-     * It normalizes a number.
-     *
-     * @param int $value Current weight.
-     * @param int $min   Minimum weight.
-     * @param int $max   Maximum weight.
-     *
-     * @return float|int Normalized weight aka score.
-     */
-    protected function normalize(int $value, int $min, int $max): float
-    {
-        $divisor = $max - $min;
-
-        if ($divisor == 0) {
-            return 0.0;
+        // Salva cache
+        if (!is_dir(dirname($cacheFile))) {
+            mkdir(dirname($cacheFile), 0775, true);
         }
+        file_put_contents($cacheFile, json_encode($cache, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-        $normalized = ($value - $min) / $divisor;
-
-        return $normalized;
+        return $ranks;
     }
 }
