@@ -7,11 +7,11 @@
  * @author  Syndesi <github.com/Syndesi>
  */
 declare(strict_types=1);
-namespace PhpScience\TextRank\Tool\StopWords;
+namespace CroacWorks\TextRank\Tool\StopWords;
 /**
  * Class German
  *
- * @package PhpScience\TextRank\Tool\StopWords
+ * @package CroacWorks\TextRank\Tool\StopWords
  */
 class German extends StopWordsAbstract
 {

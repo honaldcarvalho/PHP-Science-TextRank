@@ -9,12 +9,12 @@
 
 declare(strict_types=1);
 
-namespace PhpScience\TextRank\Tool\StopWords;
+namespace CroacWorks\TextRank\Tool\StopWords;
 
 /**
  * Class StopWordsAbstract
  *
- * @package PhpScience\TextRank\Tool\StopWords
+ * @package CroacWorks\TextRank\Tool\StopWords
  */
 abstract class StopWordsAbstract
 {

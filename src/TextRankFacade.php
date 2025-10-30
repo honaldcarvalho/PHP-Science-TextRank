@@ -9,13 +9,13 @@
 
 declare(strict_types=1);
 
-namespace PhpScience\TextRank;
+namespace CroacWorks\TextRank;
 
-use PhpScience\TextRank\Tool\Graph;
-use PhpScience\TextRank\Tool\Parser;
-use PhpScience\TextRank\Tool\Score;
-use PhpScience\TextRank\Tool\StopWords\StopWordsAbstract;
-use PhpScience\TextRank\Tool\Summarize;
+use CroacWorks\TextRank\Tool\Graph;
+use CroacWorks\TextRank\Tool\Parser;
+use CroacWorks\TextRank\Tool\Score;
+use CroacWorks\TextRank\Tool\StopWords\StopWordsAbstract;
+use CroacWorks\TextRank\Tool\Summarize;
 
 /**
  * Class TextRankFacade
@@ -38,7 +38,7 @@ use PhpScience\TextRank\Tool\Summarize;
  *      );
  * </code>
  *
- * @package PhpScience\TextRank
+ * @package CroacWorks\TextRank
  */
 class TextRankFacade
 {
@@ -48,7 +48,7 @@ class TextRankFacade
      * Stop Words to ignore because of dummy words. These words will not be Key
      * Words. A, like, no yes, one, two, I, you for example.
      *
-     * @see \PhpScience\TextRank\Tool\StopWords\English
+     * @see \CroacWorks\TextRank\Tool\StopWords\English
      *
      * @var StopWordsAbstract
      */

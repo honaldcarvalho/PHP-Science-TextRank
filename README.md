@@ -56,7 +56,7 @@ composer test
 # Examples
 ```php
 
-use PhpScience\TextRank\Tool\StopWords\English;
+use CroacWorks\TextRank\Tool\StopWords\English;
 
 // String contains a long text, see the /res/sample1.txt file.
 $text = "Lorem ipsum...";

@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace PhpScience\TextRank\Tool;
+namespace CroacWorks\TextRank\Tool;
 
 /**
  * Class Graph
@@ -17,7 +17,7 @@ namespace PhpScience\TextRank\Tool;
  * This graph store the sentences and their words with the indexes. This graph
  * is the full map of the whole text.
  *
- * @package PhpScience\TextRank\Tool
+ * @package CroacWorks\TextRank\Tool
  */
 class Graph
 {

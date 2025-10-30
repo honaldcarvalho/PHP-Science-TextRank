@@ -1,5 +1,5 @@
 {
-    "name": "php-science/textrank",
+    "name": "croacworks/textrank",
     "description": "TextRank (automatic text summarization) for PHP.",
     "keywords": ["science", "textrank", "automatic", "summarization", "PHP", "PHP8", "strict", "ai", "artificial", "intelligence"],
     "license": "MIT",
@@ -19,12 +19,12 @@
     },
     "autoload": {
         "psr-4": {
-            "PhpScience\\TextRank\\": ["src/"]
+            "CroacWorks\\TextRank\\": ["src/"]
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "PhpScience\\TextRank\\": ["tests/"]
+            "CroacWorks\\TextRank\\": ["tests/"]
         }
     },
     "scripts": {

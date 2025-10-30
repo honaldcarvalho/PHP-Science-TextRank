@@ -10,12 +10,12 @@
 
 declare(strict_types=1);
 
-namespace PhpScience\TextRank\Tool\StopWords;
+namespace CroacWorks\TextRank\Tool\StopWords;
 
 /**
  * Class Russian
  *
- * @package PhpScience\TextRank\Tool\StopWords
+ * @package CroacWorks\TextRank\Tool\StopWords
  */
 class Russian extends StopWordsAbstract
 {

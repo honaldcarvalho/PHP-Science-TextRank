@@ -9,14 +9,14 @@
 
 declare(strict_types=1);
 
-namespace PhpScience\TextRank\Tool;
+namespace CroacWorks\TextRank\Tool;
 
 /**
  * Class Score
  *
  * It handles words and assigns weighted numbers to them.
  *
- * @package PhpScience\TextRank\Tool
+ * @package CroacWorks\TextRank\Tool
  */
 class Score
 {

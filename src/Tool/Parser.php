@@ -9,16 +9,16 @@
 
 declare(strict_types=1);
 
-namespace PhpScience\TextRank\Tool;
+namespace CroacWorks\TextRank\Tool;
 
-use PhpScience\TextRank\Tool\StopWords\StopWordsAbstract;
+use CroacWorks\TextRank\Tool\StopWords\StopWordsAbstract;
 
 /**
  * Class Parser
  *
  * This class purpose to parse a real text to sentences and array.
  *
- * @package PhpScience\TextRank\Tool
+ * @package CroacWorks\TextRank\Tool
  */
 class Parser
 {

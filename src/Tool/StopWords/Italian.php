@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace PhpScience\TextRank\Tool\StopWords;
+namespace CroacWorks\TextRank\Tool\StopWords;
 
 /**
  * Class Italian
  *
- * @package PhpScience\TextRank\Tool\StopWords
+ * @package CroacWorks\TextRank\Tool\StopWords
  */
 class Italian extends StopWordsAbstract
 {

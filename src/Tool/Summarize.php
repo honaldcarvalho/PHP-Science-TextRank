@@ -9,14 +9,14 @@
 
 declare(strict_types=1);
 
-namespace PhpScience\TextRank\Tool;
+namespace CroacWorks\TextRank\Tool;
 
 /**
  * Class Summarize
  *
  * This is for summarize the text from parsed data.
  *
- * @package PhpScience\TextRank\Tool
+ * @package CroacWorks\TextRank\Tool
  */
 class Summarize
 {

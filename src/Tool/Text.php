@@ -9,14 +9,14 @@
 
 declare(strict_types=1);
 
-namespace PhpScience\TextRank\Tool;
+namespace CroacWorks\TextRank\Tool;
 
 /**
  * Class Text
  *
  * This class is for store the parsed texts.
  *
- * @package PhpScience\TextRank\Tool
+ * @package CroacWorks\TextRank\Tool
  */
 class Text
 {
