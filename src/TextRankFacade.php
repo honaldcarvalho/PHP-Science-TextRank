@@ -86,15 +86,32 @@ class TextRankFacade
         }
 
         $text = $parser->parse();
-
+        if (is_array($text)) {
+            shuffle($text);
+        }
         $graph = new Graph();
         $graph->createGraph($text);
 
         $score = new Score();
 
-        return $score->calculate(
-            $graph, $text
-        );
+        $results = $score->calculate($graph, $text);
+
+        $normalized = [];
+        foreach ($results as $word => $value) {
+            $stem = preg_replace('/(s|es|os|as|mente|ções|ção|mento|mentos|dade|dades)$/u', '', mb_strtolower($word, 'UTF-8'));
+            $skip = false;
+            foreach ($normalized as $n => $v) {
+                if (str_starts_with($stem, mb_strtolower($n, 'UTF-8'))) {
+                    $skip = true;
+                    break;
+                }
+            }
+            if (!$skip) {
+                $normalized[$word] = $value;
+            }
+        }
+
+        return $normalized;
     }
 
     /**
