@@ -2,10 +2,11 @@
 namespace CroacWorks\TextRank\Tool\StopWords;
 
 /**
- * Lista de stopwords em português (BR/PT)
- * baseada em listas da Snowball e Lucene.
+ * Class Arabic
+ *
+ * @package CroacWorks\TextRank\Tool\StopWords
  */
-class Portuguese implements StopWordsAbstract
+class Portuguese extends StopWordsAbstract
 {
     /**
      * @var array
